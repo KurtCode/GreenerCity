@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<title>Street view for climate</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnbACI0F7YLKdqqbUER26QPrvIYlQHKgI&sensor=false">
+    </script>
+    <script type="text/javascript">
+    	
+    	var input = 
+	    	"23600, NO2, 0.00000040, ppb, 78024.63281250\n" +
+			"23768, CO, 0.00012333, ppb, 67358.02343750\n" +
+			"23991, Humidity, 26.79999923, %, n/a\n" +
+			"26764, Temperature, 23.10000038, degrees C, n/a";
+
+    
+    	var map;
+   		var redColor = "#ff0000";
+   		var greenColor = "#00ff00";
+
+		function initialize() {
+			map = setupMap();
+			drawCircle(map, new google.maps.LatLng(57.703780, 11.964111), 200, redColor);
+	
+			var myPosition = new google.maps.LatLng(57.707267, 11.939591);		
+			var myRadius = 120;
+			
+			var values = getValues(input);
+			var no2 = values[0];
+			var co = values[1];
+			
+			drawCircle(map, myPosition, myRadius, greenColor);
+			setMarker("My very clean area", myPosition);
+		}
+
+	function getColor(coValue, no2Value) {
+		var coHi = 0.001;
+		var coLo = 0.0001;
+		var no2Hi = 0.000001;
+		var no2Lo = 0.0000001;
+	}
+	
+	function getValues(text) {
+		var spl = text.split("\n");
+		var returnValue = new Array();
+		for (i = 0; i < spl.length; i++) {
+			var regex = /\d{5}, [A-Z]*2?, (.*?), ppb, \d{5}\.\d{8}(.*)/g;
+			var array = regex.exec(spl[i]);
+			if (array) {
+				returnValue.push(array[1]);
+			}
+		}
+		
+		return returnValue;
+	}
+
+	function setMarker(text, position) {
+		var marker = new google.maps.Marker({
+			position: position,
+			map: map,
+			title: text
+		});
+		
+		var infowindow = new google.maps.InfoWindow({
+			content: text
+		});
+
+		google.maps.event.addListener(marker, 'click', function() {
+			infowindow.open(map,marker);
+		});
+	}
+
+	google.maps.event.addDomListener(window, 'load', initialize);
+      
+	function setupMap() {
+	    var mapOptions = {
+    	    center: new google.maps.LatLng(57.703780, 11.955111),
+        	zoom: 15,
+          	mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+
+        return new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+	}      
+      
+      
+      function drawCircle(map, center, radius, color) {
+            
+		var populationOptions = {
+      		strokeColor: color,
+    		strokeOpacity: 0.8,
+		    strokeWeight: 2,
+		    fillColor: color,
+    		fillOpacity: 0.35,
+      		map: map,
+	        center: center,
+      	    radius: radius
+	    };
+    	
+    	var cityCircle = new google.maps.Circle(populationOptions);
+    	
+
+      }
+      
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"/>
+  </body>
+</html>
