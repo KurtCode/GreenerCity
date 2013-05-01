@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<title>Street view for climate - BETA</title>
+	<meta charset="utf-8" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript"
+      	src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry,visualization&sensor=false">
+    </script>
+  </head>
+  <body>
+
+    <script type="text/javascript">
+    	var heatmap;
+  
+    	// different data point for the heat map, in our case this would come from the database/server and contain every sensor
+    	// location: Location of the point (i.e. sensor location)
+    	// weight: The weight of the point (i.e. CO2 level)
+    	//		   Max intensity can be set manually (see initialize()), otherwise max is the highest value of the data input.
+    	
+    	function initialize() {
+		  	var mapOptions = {
+		    	zoom: 15,
+		    	center: new google.maps.LatLng(57.703780, 11.955111),
+		    	mapTypeId: google.maps.MapTypeId.SATELLITE
+		  	};
+
+		  	map = new google.maps.Map(document.getElementById('map-canvas'),
+		      mapOptions);
+		  	var heatMapData = [];
+		  	heatMapData.push({location: new google.maps.LatLng(57.708426, 11.937944), weight: 5});
+
+			heatmap = new google.maps.visualization.HeatmapLayer({
+			    data: heatMapData,
+			    maxIntensity: 10,
+			    radius: 80,
+			    //dissipating: false,
+			    map: map
+			  });
+		}
+
+		function startTimeIntervall() {
+			setInterval(function(){
+				//random number between 7 and 10
+				randomValue = Math.floor((Math.random()*10)+1);
+				heatMapData = [{location: new google.maps.LatLng(57.708426,11.937944), weight: randomValue}]
+				heatmap.setData(heatMapData);
+			},500);
+		}
+
+		// change the color/gradient of the data point
+		function changeGradient() {
+		  var gradient = [
+		    'rgba(0, 255, 255, 0)',
+		    'rgba(0, 255, 255, 1)',
+		    'rgba(0, 191, 255, 1)',
+		    'rgba(0, 127, 255, 1)',
+		    'rgba(0, 63, 255, 1)',
+		    'rgba(0, 0, 255, 1)',
+		    'rgba(0, 0, 223, 1)',
+		    'rgba(0, 0, 191, 1)',
+		    'rgba(0, 0, 159, 1)',
+		    'rgba(0, 0, 127, 1)',
+		    'rgba(63, 0, 91, 1)',
+		    'rgba(127, 0, 63, 1)',
+		    'rgba(191, 0, 31, 1)',
+		    'rgba(255, 0, 0, 1)'
+		  ]
+		  heatmap.setOptions({
+		    gradient: heatmap.get('gradient') ? null : gradient
+		  });
+		}
+
+		// change the radius of the data point
+		function changeRadius(radius) {
+		  heatmap.setOptions({radius: heatmap.get('radius') ? null : radius});
+		}
+
+		// change the opacity of the data point
+		function changeOpacity(opacity) {
+		  heatmap.setOptions({opacity: heatmap.get('opacity') ? null : opacity});
+		}
+
+		google.maps.event.addDomListener(window, 'load', initialize);
+      
+    </script>
+
+  	<div id="panel">
+  		<button onclick="startTimeIntervall()">Start randomized test</button>
+      	<button onclick="changeGradient()">Change gradient</button>
+      	<button onclick="changeRadius(80)">Change radius</button>
+      	<button onclick="changeOpacity(0.3)">Change opacity</button>
+    </div>
+    <div id="map-canvas"/></div>
+  </body>
+</html>
